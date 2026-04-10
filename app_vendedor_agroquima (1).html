@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>App do Vendedor — Agroquima</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --navy:#1C2951;--navy2:#243564;--navy3:#0E1A35;
+  --blue:#2E9FD6;--blue2:#5BB8E8;--blueL:#EFF6FF;
+  --gray:#F0F2F5;--gray2:#E2E4E8;--gray3:#8892A0;
+  --white:#FFFFFF;
+  --green:#1E7D45;--green2:#27AE60;--greenL:#D5EFE0;
+  --orange:#C05621;--orangeL:#FEF3C7;
+  --red:#B91C1C;--redL:#FEE2E2;
+  --gold:#B45309;--goldL:#FFFBEB;
+  --purple:#5B21B6;--purpleL:#F5F3FF;
+  --r:12px;--r2:8px;
+  --shadow:0 2px 12px rgba(0,0,0,.10);
+}
+html,body{min-height:100vh;background:var(--gray);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--navy);}
+.app{max-width:480px;margin:0 auto;padding:0 0 32px;}
+
+/* HEADER */
+.hdr{background:var(--navy);padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.hdr-left{display:flex;flex-direction:column;}
+.hdr-brand{font-size:17px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;}
+.hdr-badge{background:var(--blue);color:#fff;font-size:9px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.4px;}
+
+/* TABS */
+.tab-bar{display:flex;background:var(--navy3);padding:4px;gap:3px;}
+.tab-btn{flex:1;padding:7px 4px;border:none;background:transparent;font-size:11px;font-weight:600;color:rgba(255,255,255,.45);border-radius:7px;cursor:pointer;letter-spacing:.3px;transition:all .2s;}
+.tab-btn.on{background:var(--blue);color:#fff;}
+
+/* SECTIONS */
+.section{display:none;padding:14px 14px 0;}
+.section.on{display:block;}
+
+/* CARD */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:12px;}
+.card-title{font-size:10px;font-weight:700;color:var(--gray3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+
+/* INPUT GROUPS */
+.inp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.inp-full{grid-column:1/-1;}
+.inp-group{display:flex;flex-direction:column;gap:5px;}
+.inp-group label{font-size:11px;font-weight:500;color:var(--gray3);}
+.inp-group input,.inp-group select{
+  width:100%;border:.5px solid var(--gray2);border-radius:var(--r2);
+  padding:9px 11px;font-size:15px;font-weight:600;color:var(--navy);
+  background:#fff;outline:none;transition:border-color .15s;
+}
+.inp-group input:focus,.inp-group select:focus{border-color:var(--blue);}
+.inp-group select{cursor:pointer;}
+
+/* ENTREGA TOGGLE */
+.entrega-row{display:flex;gap:8px;margin-bottom:10px;}
+.ent-btn{flex:1;padding:9px 6px;border:1.5px solid var(--gray2);border-radius:var(--r2);background:#fff;font-size:12px;font-weight:600;color:var(--gray3);cursor:pointer;text-align:center;transition:all .18s;}
+.ent-btn.on.unica{border-color:var(--green2);background:var(--greenL);color:var(--green);}
+.ent-btn.on.frac{border-color:var(--orange);background:var(--orangeL);color:var(--orange);}
+
+/* RESULT MAIN */
+.result-hero{background:var(--navy);border-radius:var(--r);box-shadow:var(--shadow);padding:16px;margin-bottom:12px;}
+.res-meta{font-size:10px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.res-tier-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px;}
+.res-main-row{display:flex;align-items:flex-end;justify-content:space-between;}
+.res-price-block{}
+.res-price-label{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px;}
+.res-price{font-size:38px;font-weight:700;color:#fff;line-height:1;}
+.res-price-unit{font-size:13px;color:rgba(255,255,255,.45);margin-left:3px;}
+.res-total-block{text-align:right;}
+.res-total-label{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px;}
+.res-total-value{font-size:22px;font-weight:700;color:var(--blue2);}
+.res-total-note{font-size:9px;color:rgba(255,255,255,.35);margin-top:2px;}
+.res-chips{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.res-chip{background:rgba(255,255,255,.09);border-radius:20px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,.7);}
+.res-chip strong{color:#fff;}
+
+/* FRAC BREAKDOWN */
+.frac-box{background:var(--orangeL);border:1px solid #FCD34D;border-radius:var(--r2);padding:10px 12px;margin-bottom:12px;}
+.frac-title{font-size:10px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.frac-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:.5px solid rgba(192,86,33,.15);}
+.frac-row:last-child{border:none;}
+.frac-l{font-size:11.5px;color:var(--orange);}
+.frac-v{font-size:12px;font-weight:700;color:#92400E;}
+
+/* DIAMANTE LOST */
+.dia-warn{background:var(--redL);border:1px solid #FCA5A5;border-radius:var(--r2);padding:10px 12px;margin-bottom:12px;}
+.dia-warn-title{font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.dia-warn-body{font-size:11px;color:#991B1B;line-height:1.55;}
+
+/* TIER BAR */
+.tier-card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:12px 14px;margin-bottom:12px;}
+.tier-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tier-bar-label{font-size:11px;font-weight:600;color:var(--navy);}
+.tier-bar-next{font-size:10px;color:var(--blue);font-weight:600;}
+.track{height:7px;background:var(--gray);border-radius:4px;overflow:hidden;}
+.track-fill{height:100%;border-radius:4px;transition:width .5s ease;}
+.tier-labels{display:flex;justify-content:space-between;margin-top:6px;}
+.tier-label-item{font-size:8.5px;text-align:center;color:var(--gray3);line-height:1.3;}
+.tier-label-item.active{color:var(--blue);font-weight:700;}
+
+/* UPSELL */
+.upsell-card{border-radius:var(--r);box-shadow:var(--shadow);padding:13px 14px;margin-bottom:12px;}
+.upsell-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.upsell-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.upsell-title{font-size:12px;font-weight:700;}
+.upsell-body{font-size:12px;line-height:1.6;color:#444;}
+.upsell-saving{display:inline-block;margin-top:8px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+
+/* ALERT */
+.alert{border-radius:var(--r2);padding:9px 12px;margin-bottom:10px;font-size:11.5px;line-height:1.55;display:flex;gap:8px;align-items:flex-start;}
+.alert-icon{font-size:14px;flex-shrink:0;}
+.alert.warn{background:var(--orangeL);color:var(--orange);border:1px solid #FCD34D;}
+.alert.ok{background:var(--greenL);color:var(--green);border:1px solid #86EFAC;}
+.alert.info{background:var(--blueL);color:#1D4ED8;border:1px solid #93C5FD;}
+.alert.red{background:var(--redL);color:var(--red);border:1px solid #FCA5A5;}
+
+/* SCRIPTS TAB */
+.script-item{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:12px 14px;margin-bottom:10px;}
+.script-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.script-tag{font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+.script-copy-btn{font-size:10px;color:var(--blue);background:var(--blueL);border:1px solid var(--blue2);border-radius:20px;padding:3px 10px;cursor:pointer;}
+.script-text{font-size:12.5px;line-height:1.65;color:#374151;}
+.script-text em{font-style:italic;color:var(--navy);font-weight:600;}
+.script-tip{font-size:10px;color:var(--gray3);margin-top:6px;padding-top:6px;border-top:.5px solid var(--gray2);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r2);}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{padding:6px 7px;background:var(--navy);color:#fff;font-size:9px;font-weight:600;text-align:right;letter-spacing:.4px;white-space:nowrap;}
+thead th:first-child{text-align:left;border-radius:var(--r2) 0 0 0;}
+thead th:last-child{border-radius:0 var(--r2) 0 0;}
+tbody td{padding:5px 7px;text-align:right;border-bottom:.5px solid var(--gray2);font-size:10.5px;}
+tbody td:first-child{text-align:left;font-weight:600;color:var(--navy);}
+tbody tr:last-child td{border:none;}
+tbody tr:hover td{background:#F9FAFB;}
+.seg-row td{background:#F0F2F5;font-size:8.5px;font-weight:700;color:var(--gray3);text-transform:uppercase;letter-spacing:.8px;padding:3px 7px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) scale(.95);background:var(--navy);color:#fff;padding:9px 20px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:99;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1);}
+
+/* EXTRAS */
+.divider{height:.5px;background:var(--gray2);margin:8px 0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <span class="hdr-brand">AGROQUIMA</span>
+      <span class="hdr-sub">App do Vendedor</span>
+    </div>
+    <span class="hdr-badge">Frete v2.0</span>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn on" onclick="setTab('calc')">Calculadora</button>
+    <button class="tab-btn" onclick="setTab('gatilhos')">Gatilhos de Venda</button>
+    <button class="tab-btn" onclick="setTab('tabela')">Tabela</button>
+  </div>
+
+  <!-- ══════════════ CALCULADORA ══════════════ -->
+  <div class="section on" id="tab-calc">
+
+    <!-- INPUTS -->
+    <div class="card">
+      <div class="card-title">Dados do Pedido</div>
+      <div class="inp-grid">
+        <div class="inp-group">
+          <label>Distância Google Maps (km)</label>
+          <input type="number" id="distancia" min="1" max="700" value="200" inputmode="numeric" oninput="calc()">
+        </div>
+        <div class="inp-group">
+          <label>Quantidade total de sacos</label>
+          <input type="number" id="sacos" min="1" max="2000" value="120" inputmode="numeric" oninput="calc()">
+        </div>
+        <div class="inp-group">
+          <label>Tipo de saco</label>
+          <select id="tipo" onchange="calc()">
+            <option value="30">30 kg</option>
+            <option value="25">25 kg</option>
+          </select>
+        </div>
+        <div class="inp-group">
+          <label>Produto (opcional)</label>
+          <input type="text" id="produto" placeholder="Ex: Ruminomax" style="font-size:13px;font-weight:500;">
+        </div>
+      </div>
+    </div>
+
+    <!-- MODO DE ENTREGA -->
+    <div class="card">
+      <div class="card-title">Modo de Entrega</div>
+      <div class="entrega-row">
+        <button class="ent-btn unica on" id="btn-unica" onclick="setEntrega('unica')">
+          ✓ Entrega Única
+        </button>
+        <button class="ent-btn frac" id="btn-frac" onclick="setEntrega('frac')">
+          ÷ Fracionada
+        </button>
+      </div>
+      <div id="frac-inputs" style="display:none;">
+        <div class="inp-group">
+          <label>Número de entregas (viagens)</label>
+          <input type="number" id="num-entregas" min="2" max="20" value="2" inputmode="numeric" oninput="calc()">
+        </div>
+        <div style="font-size:10.5px;color:var(--orange);margin-top:8px;line-height:1.5;padding:6px 10px;background:var(--orangeL);border-radius:6px;">
+          ⚠ Frete cobrado por entrega com base no volume de cada viagem. Pedidos fracionados perdem benefício de tiers superiores.
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="alert-box"></div>
+
+    <!-- RESULTADO PRINCIPAL -->
+    <div class="result-hero">
+      <div class="res-meta" id="res-meta">—</div>
+      <div id="tier-pill-wrap"></div>
+      <div class="res-main-row">
+        <div class="res-price-block">
+          <div class="res-price-label">Frete por saco</div>
+          <div>
+            <span class="res-price" id="res-preco">—</span>
+            <span class="res-price-unit">/sc</span>
+          </div>
+        </div>
+        <div class="res-total-block">
+          <div class="res-total-label">Total do pedido</div>
+          <div class="res-total-value" id="res-total">—</div>
+          <div class="res-total-note" id="res-note"></div>
+        </div>
+      </div>
+      <div class="res-chips" id="res-chips"></div>
+    </div>
+
+    <!-- AVISO DE DIAMANTE PERDIDO -->
+    <div id="dia-warn-box"></div>
+
+    <!-- DETALHAMENTO FRACIONADO -->
+    <div id="frac-detail-box"></div>
+
+    <!-- BARRA DE TIERS -->
+    <div class="tier-card">
+      <div class="tier-bar-top">
+        <span class="tier-bar-label" id="bar-label">—</span>
+        <span class="tier-bar-next" id="bar-next">—</span>
+      </div>
+      <div class="track"><div class="track-fill" id="track-fill" style="width:0%;background:var(--blue);"></div></div>
+      <div class="tier-labels">
+        <div class="tier-label-item" id="tl0">Padrão<br>&lt;80</div>
+        <div class="tier-label-item" id="tl1">Bronze<br>80+</div>
+        <div class="tier-label-item" id="tl2">Prata<br>120+</div>
+        <div class="tier-label-item" id="tl3">Ouro<br>250+</div>
+        <div class="tier-label-item" id="tl4">Platina<br>350+</div>
+        <div class="tier-label-item" id="tl5">Diamante<br>500+</div>
+      </div>
+    </div>
+
+    <!-- UPSELL -->
+    <div id="upsell-box"></div>
+
+  </div><!-- /calc -->
+
+  <!-- ══════════════ GATILHOS ══════════════ -->
+  <div class="section" id="tab-gatilhos">
+    <div id="gatilhos-content">
+      <div class="alert info">
+        <span class="alert-icon">ℹ</span>
+        <span>Preencha os dados na aba <strong>Calculadora</strong> para gerar os gatilhos personalizados para este cliente.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ TABELA ══════════════ -->
+  <div class="section" id="tab-tabela">
+    <div class="card" style="padding:10px;">
+      <div class="card-title">Saco 30kg — Parâmetros: CPK R$5,75 · Fatores 1,2 · Base 375sc · Taxa 22%</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left;">Faixa</th>
+              <th>Padrão</th>
+              <th style="color:#FEF3C7;">Bronze</th>
+              <th style="color:#E2E8F0;">Prata</th>
+              <th style="color:#D1FAE5;">Ouro</th>
+              <th style="color:#EDE9FE;">Platina</th>
+              <th style="color:#DBEAFE;">Diamante</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+<div class="toast" id="toast">Copiado!</div>
+
+<script>
+const CPK=5.75,FM=1.2,FR=1.2,SC=375,TAXA=1.22,CPK_DIA=12,TAXA_DIA=1.08;
+
+const TIERS=[
+  {id:'padrao', label:'Padrão',   min:0,  disc:0,   col:'#6B7280',bg:'#F3F4F6',border:'#D1D5DB'},
+  {id:'bronze', label:'Bronze',  min:80,  disc:.05, col:'#B45309',bg:'#FFFBEB',border:'#FCD34D'},
+  {id:'prata',  label:'Prata',   min:120, disc:.09, col:'#374151',bg:'#F1F5F9',border:'#CBD5E1'},
+  {id:'ouro',   label:'Ouro',    min:250, disc:.15, col:'#1E7D45',bg:'#D5EFE0',border:'#86EFAC'},
+  {id:'platina',label:'Platina', min:350, disc:.18, col:'#5B21B6',bg:'#F5F3FF',border:'#C4B5FD'},
+  {id:'diamante',label:'Diamante',min:500,disc:null,col:'#1D4ED8',bg:'#EFF6FF',border:'#93C5FD'},
+];
+
+let modoEntrega='unica';
+
+function getRetRef(lo){if(lo<100)return 50;if(lo<350)return 225;if(lo<500)return 425;return 600;}
+function getSeg(lo){if(lo<100)return'Local';if(lo<350)return'Regional';if(lo<500)return'Intermediário';return'Longa';}
+function getFaixa(d){const lo=Math.floor((d-1)/50)*50;const hi=lo+50;return{lo,hi,label:`${lo||1}–${hi} km`};}
+function r2(v){return Math.round(v*100)/100;}
+function fmt(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function getTier(sc){for(let i=TIERS.length-1;i>=0;i--){if(sc>=TIERS[i].min)return{tier:TIERS[i],idx:i};}return{tier:TIERS[0],idx:0};}
+
+function calcBase(d){
+  const f=getFaixa(d);
+  const mid=(f.lo===0?25:(f.lo+f.hi)/2);
+  const tr=r2(mid*FM*CPK/SC);
+  const rv=r2(getRetRef(f.lo)*FR*CPK/SC);
+  const base=r2(tr+rv);
+  const pad=r2(base*TAXA);
+  return{f,seg:getSeg(f.lo),base,pad,
+    prices:[pad,r2(pad*.95),r2(pad*.91),r2(pad*.85),r2(pad*.82),r2(f.hi*CPK_DIA*TAXA_DIA/500)]};
+}
+
+function setEntrega(mode){
+  modoEntrega=mode;
+  document.getElementById('btn-unica').classList.toggle('on',mode==='unica');
+  document.getElementById('btn-frac').classList.toggle('on',mode==='frac');
+  document.getElementById('frac-inputs').style.display=mode==='frac'?'block':'none';
+  calc();
+}
+
+function calc(){
+  const dist=Math.max(1,Math.min(700,parseInt(document.getElementById('distancia').value)||200));
+  const sacosTotal=Math.max(1,parseInt(document.getElementById('sacos').value)||120);
+  const numEntregas=modoEntrega==='frac'?Math.max(2,parseInt(document.getElementById('num-entregas').value)||2):1;
+  const cb=calcBase(dist);
+
+  // What tier WOULD apply for full order (reference)
+  const{tier:tierFull,idx:idxFull}=getTier(sacosTotal);
+
+  // Fracionado: tier applies per delivery
+  const sacosPerEntrega=modoEntrega==='frac'?Math.ceil(sacosTotal/numEntregas):sacosTotal;
+  const sacosCobranca=modoEntrega==='unica'&&sacosTotal<80?80:sacosPerEntrega<80?80:sacosPerEntrega;
+  const minApplied=modoEntrega==='unica'&&sacosTotal<80;
+
+  const{tier,idx}=getTier(sacosPerEntrega<80?0:sacosPerEntrega);
+  const pricePerSc=cb.prices[idx];
+
+  // Total calculation
+  let totalFrete,totalNota;
+  if(modoEntrega==='frac'){
+    const sacosUlt=sacosTotal-(numEntregas-1)*Math.ceil(sacosTotal/numEntregas);
+    const scUlt=Math.max(0,sacosTotal-Math.ceil(sacosTotal/numEntregas)*(numEntregas-1));
+    totalFrete=r2(pricePerSc*sacosTotal);
+    totalNota=`${numEntregas} entregas × ${Math.ceil(sacosTotal/numEntregas)}sc`;
+  }else{
+    const scCob=minApplied?80:sacosTotal;
+    totalFrete=r2(pricePerSc*scCob);
+    totalNota=minApplied?`cobrado ${scCob}sc (mínimo)`:sacosTotal+' sacos';
+  }
+
+  // UI: Meta line
+  document.getElementById('res-meta').textContent=`${cb.f.label} · ${cb.seg}${modoEntrega==='frac'?` · ${numEntregas} entregas de ${sacosCobranca}sc`:''}`;
+
+  // Tier pill
+  document.getElementById('tier-pill-wrap').innerHTML=
+    `<div class="res-tier-pill" style="background:${tier.bg};color:${tier.col};">
+      ${tier.label} ${tier.disc?'−'+(tier.disc*100).toFixed(0)+'%':tier.id==='diamante'?'FTL dedicado':''}
+      ${modoEntrega==='frac'?`· por entrega`:''}
+    </div>`;
+
+  // Price & total
+  document.getElementById('res-preco').textContent='R$'+fmt(pricePerSc);
+  document.getElementById('res-total').textContent='R$'+fmt(totalFrete);
+  document.getElementById('res-note').textContent=totalNota;
+
+  // Chips
+  const discPct=tier.disc?(tier.disc*100).toFixed(0)+'% desconto':'Tabela cheia';
+  document.getElementById('res-chips').innerHTML=
+    `<span class="res-chip">CPK <strong>R$5,75</strong></span>
+     <span class="res-chip"><strong>${discPct}</strong></span>
+     <span class="res-chip">Saco <strong>${document.getElementById('tipo').value}kg</strong></span>`;
+
+  // Alerts
+  let alertHtml='';
+  if(minApplied)alertHtml=`<div class="alert warn"><span class="alert-icon">⚠</span><span><strong>${sacosTotal} sacos abaixo do mínimo.</strong> Frete cobrado sobre 80 sacos ao preço Padrão.</span></div>`;
+  else if(tier.id==='diamante'&&modoEntrega==='unica')alertHtml=`<div class="alert ok"><span class="alert-icon">◆</span><span><strong>Diamante ativo.</strong> Caminhão exclusivo — entrega integral em viagem única obrigatória.</span></div>`;
+  else if(dist>350&&sacosPerEntrega<120)alertHtml=`<div class="alert warn"><span class="alert-icon">⚠</span><span><strong>Acima de 350km:</strong> mínimo recomendado 120 sacos por entrega. Solicitar aprovação do gestor.</span></div>`;
+  else if(dist>200&&sacosPerEntrega<80)alertHtml=`<div class="alert warn"><span class="alert-icon">⚠</span><span><strong>Acima de 200km:</strong> aprovação do gestor necessária para menos de 80 sacos.</span></div>`;
+  document.getElementById('alert-box').innerHTML=alertHtml;
+
+  // Diamante lost warning
+  let diaWarn='';
+  if(modoEntrega==='frac'&&idxFull>=5&&idx<5){
+    const fullPrice=cb.prices[idxFull];
+    const perdaTotal=r2((pricePerSc-fullPrice)*sacosTotal);
+    diaWarn=`<div class="dia-warn">
+      <div class="dia-warn-title">⚠ Diamante perdido no fracionamento</div>
+      <div class="dia-warn-body">Com ${sacosTotal} sacos em 1 entrega, o frete seria Diamante: <strong>R$${fmt(fullPrice)}/sc = R$${fmt(r2(fullPrice*sacosTotal))}</strong>.<br>
+      Fracionando em ${numEntregas} entregas, cada viagem cai para <strong>${tier.label}</strong>: R$${fmt(pricePerSc)}/sc.<br>
+      <strong>Custo extra do fracionamento: R$${fmt(perdaTotal)}</strong></div>
+    </div>`;
+  }else if(modoEntrega==='frac'&&idx<idxFull){
+    const fullPrice=cb.prices[idxFull];
+    const perdaTotal=r2((pricePerSc-fullPrice)*sacosTotal);
+    if(perdaTotal>0)diaWarn=`<div class="dia-warn">
+      <div class="dia-warn-title">⚠ Tier reduzido no fracionamento</div>
+      <div class="dia-warn-body">Em 1 entrega seria <strong>${tierFull.label}</strong>: R$${fmt(fullPrice)}/sc (R$${fmt(r2(fullPrice*sacosTotal))}).<br>
+      Fracionando em ${numEntregas}×: <strong>${tier.label}</strong>: R$${fmt(pricePerSc)}/sc.<br>
+      <strong>Custo extra: R$${fmt(perdaTotal)}</strong></div>
+    </div>`;
+  }
+  document.getElementById('dia-warn-box').innerHTML=diaWarn;
+
+  // Frac detail
+  let fracDetail='';
+  if(modoEntrega==='frac'){
+    const scPorViagem=Math.ceil(sacosTotal/numEntregas);
+    const scUltima=sacosTotal-(numEntregas-1)*scPorViagem;
+    const{tier:tU,idx:iU}=getTier(scUltima<80?0:scUltima);
+    const pU=cb.prices[iU];
+    const totalPrimeiras=r2(pricePerSc*scPorViagem*(numEntregas-1));
+    const totalUltima=r2(pU*scUltima);
+    fracDetail=`<div class="frac-box">
+      <div class="frac-title">Detalhamento por entrega</div>
+      <div class="frac-row"><span class="frac-l">${numEntregas-1}× entrega de ${scPorViagem}sc (${tier.label})</span><span class="frac-v">R$${fmt(pricePerSc)}/sc · R$${fmt(r2(pricePerSc*scPorViagem))} cada</span></div>
+      ${scUltima!==scPorViagem?`<div class="frac-row"><span class="frac-l">Última entrega: ${scUltima}sc (${tU.label})</span><span class="frac-v">R$${fmt(pU)}/sc · R$${fmt(totalUltima)}</span></div>`:''}
+      <div class="frac-row" style="margin-top:4px;"><span class="frac-l" style="font-weight:700;">Total geral</span><span class="frac-v" style="font-size:14px;">R$${fmt(totalFrete)}</span></div>
+    </div>`;
+  }
+  document.getElementById('frac-detail-box').innerHTML=fracDetail;
+
+  // Tier bar — based on sacos per entrega for display
+  const barSc=modoEntrega==='frac'?sacosPerEntrega:sacosTotal;
+  const pct=Math.min(100,(barSc/600)*100);
+  document.getElementById('track-fill').style.width=pct+'%';
+  const barColor=['#6B7280','#B45309','#374151','#1E7D45','#5B21B6','#1D4ED8'][idx];
+  document.getElementById('track-fill').style.background=barColor;
+  document.getElementById('bar-label').textContent=modoEntrega==='frac'?`${sacosPerEntrega}sc por entrega (de ${sacosTotal}sc total)`:sacosTotal+' sacos';
+  for(let i=0;i<6;i++)document.getElementById('tl'+i).classList.toggle('active',i===idx);
+  const nextT=TIERS[Math.min(idx+1,5)];
+  const diff=nextT.min-barSc;
+  document.getElementById('bar-next').textContent=idx<5&&diff>0?`+${diff}sc → ${nextT.label}`:'Tier máximo';
+
+  // Upsell
+  buildUpsell(cb,idx,barSc,sacosTotal,pricePerSc,totalFrete,modoEntrega,numEntregas);
+}
+
+function buildUpsell(cb,idx,barSc,sacosTotal,pricePerSc,total,modo,numEnt){
+  if(idx>=5){
+    document.getElementById('upsell-box').innerHTML=`<div class="alert ok"><span class="alert-icon">◆</span><span><strong>Melhor preço possível.</strong> Caminhão exclusivo, custo real de frota para este cliente.</span></div>`;
+    return;
+  }
+  const next=TIERS[idx+1];
+  const sacosA=next.min-barSc;
+  const nextPrice=cb.prices[idx+1];
+  const econPsc=r2(pricePerSc-nextPrice);
+  const nc={bronze:{bg:'#FFFBEB',border:'#FCD34D',txt:'#B45309',ibg:'#FEF9EC'},prata:{bg:'#F8FAFC',border:'#CBD5E1',txt:'#374151',ibg:'#F1F5F9'},ouro:{bg:'#F0FDF4',border:'#86EFAC',txt:'#1E7D45',ibg:'#D5EFE0'},platina:{bg:'#FAF5FF',border:'#C4B5FD',txt:'#5B21B6',ibg:'#EDE9FE'},diamante:{bg:'#EFF6FF',border:'#93C5FD',txt:'#1D4ED8',ibg:'#DBEAFE'}}[next.id]||{bg:'#EFF6FF',border:'#93C5FD',txt:'#1D4ED8',ibg:'#DBEAFE'};
+  const scRef=modo==='frac'?next.min:next.min;
+  const econTotal=r2(econPsc*scRef);
+  const msgExtra=modo==='frac'?` (aumentando cada entrega para ${next.min}sc)`:'';
+  document.getElementById('upsell-box').innerHTML=`
+    <div class="upsell-card" style="background:${nc.bg};border:.5px solid ${nc.border};">
+      <div class="upsell-top">
+        <div class="upsell-icon" style="background:${nc.ibg};color:${nc.txt};">↑</div>
+        <span class="upsell-title" style="color:${nc.txt};">+${sacosA} sacos → ${next.label} · −R$${fmt(econPsc)}/saco</span>
+      </div>
+      <div class="upsell-body">Com <strong>${sacosA} sacos a mais por entrega${msgExtra}</strong>, o frete cai de <strong>R$${fmt(pricePerSc)}</strong> para <strong style="color:${nc.txt};">R$${fmt(nextPrice)}/saco</strong>. No pedido de ${scRef} sacos, a economia é <strong style="color:${nc.txt};">R$${fmt(econTotal)}</strong> só no frete.</div>
+      <span class="upsell-saving" style="background:${nc.ibg};color:${nc.txt};">Economia no pedido: R$${fmt(econTotal)}</span>
+    </div>`;
+}
+
+function buildGatilhos(){
+  const dist=Math.max(1,Math.min(700,parseInt(document.getElementById('distancia').value)||200));
+  const sacosTotal=Math.max(1,parseInt(document.getElementById('sacos').value)||120);
+  const numEnt=modoEntrega==='frac'?Math.max(2,parseInt(document.getElementById('num-entregas').value)||2):1;
+  const produto=document.getElementById('produto').value||'o produto';
+  const cb=calcBase(dist);
+  const scPerEnt=modoEntrega==='frac'?Math.ceil(sacosTotal/numEnt):sacosTotal;
+  const scCob=scPerEnt<80?80:scPerEnt;
+  const{tier,idx}=getTier(scCob);
+  const preco=cb.prices[idx];
+  const total=r2(preco*(modoEntrega==='frac'?sacosTotal:Math.max(sacosTotal,sacosTotal<80?80:sacosTotal)));
+
+  const scripts=[];
+
+  if(tier.disc>0){
+    scripts.push({tag:'Valorizar tier atual',col:'#1E7D45',bg:'#D5EFE0',
+      text:`"Só pra você saber — pelo volume que você já está pedindo (${sacosTotal} sacos), você está no tier <em>${tier.label}</em> com <em>${(tier.disc*100).toFixed(0)}% de desconto</em>. Seu frete está em <em>R$${fmt(preco)}/saco</em>. Mas posso mostrar como economizar mais no próximo pedido."`,
+      tip:'Use no início da conversa para criar percepção de valor antes de negociar.'});
+  }
+
+  if(idx<5){
+    const next=TIERS[idx+1];
+    const sacosA=next.min-scCob;
+    const np=cb.prices[idx+1];
+    const econ=r2((preco-np)*next.min);
+    scripts.push({tag:'Upsell próximo tier',col:'#1D4ED8',bg:'#EFF6FF',
+      text:`"Com apenas <em>mais ${sacosA} sacos</em> por pedido você sobe para <em>${next.label}</em> e o frete cai para <em>R$${fmt(np)}/saco</em>. No pedido de ${next.min} sacos, a economia no frete já é de <em>R$${fmt(econ)}</em>. Dependendo do seu giro de ${produto}, esses ${sacosA} sacos a mais pagam o próprio frete."`,
+      tip:'Funciona melhor quando o cliente está próximo do próximo tier (menos de 30sc de diferença).'});
+  }
+
+  if(sacosTotal<500){
+    const diaP=cb.prices[5];
+    const econ=r2((preco-diaP)*500);
+    scripts.push({tag:'Gatilho Diamante',col:'#1D4ED8',bg:'#DBEAFE',
+      text:`"Se você fechar <em>500 sacos de uma vez</em> — entrega única — eu mando o caminhão <em>exclusivo</em> para você e o frete cai para <em>R$${fmt(diaP)}/saco</em>. Isso é o custo real do veículo, sem nada a mais. Você economizaria <em>R$${fmt(econ)}</em> nesse pedido comparado ao que paga hoje."`,
+      tip:'Sempre enfatizar "de uma vez, entrega única". O Diamante não vale para pedidos fracionados.'});
+  }
+
+  if(modoEntrega==='frac'&&idx<5){
+    const{tier:tFull,idx:iFull}=getTier(sacosTotal);
+    const pFull=cb.prices[iFull];
+    const perdaT=r2((preco-pFull)*sacosTotal);
+    if(perdaT>0)scripts.push({tag:'Consolidar entregas',col:'#C05621',bg:'#FEF3C7',
+      text:`"Hoje você está pedindo ${sacosTotal} sacos em ${numEnt} entregas e pagando <em>R$${fmt(preco)}/saco (${tier.label})</em>. Se entregar tudo de uma vez, o pedido inteiro sobe para <em>${tFull.label}</em>: <em>R$${fmt(pFull)}/saco</em>. Você economizaria <em>R$${fmt(perdaT)}</em> só consolidando as entregas."`,
+      tip:'Argumento direto para converter cliente fracionado em entrega única.'});
+  }
+
+  if(sacosTotal<400){
+    const sc2=Math.min(sacosTotal*2,500);
+    const{tier:t2,idx:i2}=getTier(sc2);
+    const p2=cb.prices[i2];
+    const econ2=r2((preco-p2)*sc2);
+    scripts.push({tag:'Consolidar meses',col:'#5B21B6',bg:'#F5F3FF',
+      text:`"Uma ideia: você costuma pedir ${sacosTotal} sacos por mês. Se juntar <em>2 meses de uma vez — ${sc2} sacos</em> — o frete por saco cai para <em>R$${fmt(p2)}/sc (${t2.label})</em> automaticamente. Você economiza <em>R$${fmt(econ2)}</em> só no frete e ainda garante o estoque por mais tempo."`,
+      tip:'Ótimo para clientes de compra regular mensal.'});
+  }
+
+  scripts.push({tag:'Âncora de preço',col:'#6B7280',bg:'#F3F4F6',
+    text:`"Só pra contexto: na tabela cheia, esse frete seria <em>R$${fmt(cb.pad)}/saco</em>. Hoje você paga <em>R$${fmt(preco)}/saco</em>${tier.disc>0?' — '+((tier.disc)*100).toFixed(0)+'% de desconto':' (tabela cheia)'}. O desconto existe porque seu volume justifica. Quanto mais você consolida, mais esse desconto cresce."`,
+    tip:'Use quando o cliente achar o frete caro, para mostrar o contexto do desconto.'});
+
+  const anual=r2(total*12);
+  scripts.push({tag:'Projeção anual',col:'#374151',bg:'#F8FAFC',
+    text:`"No ritmo atual de ${sacosTotal} sacos por mês, você gasta cerca de <em>R$${anual.toLocaleString('pt-BR')}/ano</em> em frete. Se subir para ${idx<5?TIERS[idx+1].min:350} sacos por pedido (<em>${idx<5?TIERS[idx+1].label:'Platina'}</em>), esse custo anual cai para <em>R$${r2(cb.prices[Math.min(idx+1,5)]*(idx<5?TIERS[idx+1].min:350)*12).toLocaleString('pt-BR')}</em>. É uma economia real que aparece no resultado do cliente."`,
+    tip:'Use com clientes que pensam no custo de longo prazo.'});
+
+  document.getElementById('gatilhos-content').innerHTML=`
+    <div class="card" style="margin-bottom:10px;padding:10px 14px;">
+      <div style="font-size:10.5px;color:#6B7280;line-height:1.6;">
+        Base: <strong>${sacosTotal} sacos · ${dist}km · ${produto}</strong><br>
+        Tier atual: <strong>${tier.label}</strong> · Frete: <strong>R$${fmt(preco)}/sc</strong>
+        ${modoEntrega==='frac'?` · <span style="color:var(--orange);font-weight:600;">Entrega fracionada (${numEnt}×)</span>`:''}
+      </div>
+    </div>
+    ${scripts.map((s,i)=>`
+      <div class="script-item">
+        <div class="script-header">
+          <span class="script-tag" style="background:${s.bg};color:${s.col};">${s.tag}</span>
+          <button class="script-copy-btn" onclick="copyScript(${i})">Copiar</button>
+        </div>
+        <div class="script-text" id="sc${i}">${s.text}</div>
+        ${s.tip?`<div class="script-tip">💡 ${s.tip}</div>`:''}
+      </div>`).join('')}
+  `;
+  window._sc=scripts.map(s=>s.text.replace(/<[^>]+>/g,'').replace(/"/g,''));
+}
+
+function copyScript(i){
+  const txt=window._sc&&window._sc[i]?window._sc[i]:document.getElementById('sc'+i).innerText;
+  navigator.clipboard.writeText(txt).catch(()=>{});
+  const t=document.getElementById('toast');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function buildTabela(){
+  const faixas=[[1,50],[51,100],[101,150],[151,200],[201,250],[251,300],[301,350],[351,400],[401,450],[451,500],[501,550],[551,600],[601,650],[651,700]];
+  const SEG={1:'Local (0–100km)',101:'Regional (100–350km)',351:'Intermediário (350–500km)',501:'Longa (500–700km)'};
+  let lastSeg='',html='';
+  faixas.forEach(([lo,hi])=>{
+    const segKey=lo<=50?1:lo<=350?101:lo<=500?351:501;
+    const sl=SEG[segKey];
+    if(sl!==lastSeg){html+=`<tr class="seg-row"><td colspan="7">${sl}</td></tr>`;lastSeg=sl;}
+    const mid=(lo+hi)/2,ef=mid*FM,retEf=getRetRef(lo)*FR;
+    const base=r2((ef*CPK/SC)+(retEf*CPK/SC)),pad=r2(base*TAXA);
+    const bro=r2(pad*.95),pra=r2(pad*.91),our=r2(pad*.85),pla=r2(pad*.82),dia=r2(hi*CPK_DIA*TAXA_DIA/500);
+    html+=`<tr>
+      <td>${lo}–${hi}</td>
+      <td style="font-weight:600;">${fmt(pad)}</td>
+      <td style="color:#B45309;">${fmt(bro)}</td>
+      <td style="color:#374151;">${fmt(pra)}</td>
+      <td style="color:#1E7D45;">${fmt(our)}</td>
+      <td style="color:#5B21B6;">${fmt(pla)}</td>
+      <td style="color:#1D4ED8;">${fmt(dia)}</td>
+    </tr>`;
+  });
+  document.getElementById('tabela-body').innerHTML=html;
+}
+
+function setTab(id){
+  ['calc','gatilhos','tabela'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('on',t===id);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('on',['calc','gatilhos','tabela'][i]===id);
+  });
+  if(id==='gatilhos')buildGatilhos();
+  if(id==='tabela')buildTabela();
+}
+
+calc();buildTabela();
+</script>
+</body>
+</html>
